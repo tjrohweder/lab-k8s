@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dagster
+  namespace: dagster
+spec:
+  project: default
+  sources:
+    - repoURL: 'https://dagster-io.github.io/helm'
+      chart: dagster
+      targetRevision: 1.5.10
+      helm:
+        valueFiles:
+          - $valuesRepo/kubernetes/values/dagster-values.yaml
+    - repoURL: 'https://github.com/tjrohweder/lab.git'
+      targetRevision: HEAD
+      ref: valuesRepo
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: dagster
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

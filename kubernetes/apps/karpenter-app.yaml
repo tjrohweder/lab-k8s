@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: karpenter
+  namespace: karpenter
+spec:
+  project: default
+  sources:
+    - repoURL: 'public.ecr.aws/karpenter'
+      chart: karpenter
+      targetRevision: v0.32.1
+      helm:
+        valueFiles:
+          - $valuesRepo/kubernetes/values/karpenter-values.yaml
+    - repoURL: 'https://github.com/tjrohweder/lab.git'
+      targetRevision: HEAD
+      ref: valuesRepo
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: karpenter
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
