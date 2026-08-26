@@ -8,11 +8,11 @@ spec:
   sources:
     - repoURL: 'public.ecr.aws/karpenter'
       chart: karpenter
-      targetRevision: v0.32.1
+      targetRevision: v0.6.0
       helm:
         valueFiles:
           - $valuesRepo/kubernetes/values/karpenter-values.yaml
-    - repoURL: 'https://github.com/tjrohweder/lab.git'
+    - repoURL: 'https://github.com/tjrohweder/lab-k8s.git'
       targetRevision: HEAD
       ref: valuesRepo
   destination:
@@ -24,3 +24,22 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+---
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: karpenter-resources
+  namespace: karpenter
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/tjrohweder/lab-k8s.git'
+    targetRevision: HEAD
+    path: kubernetes/manifests
+  destination:
+    server: 'https://kubernetes.default.svc'
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

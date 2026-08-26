@@ -1,0 +1,41 @@
+serviceAccount:
+  create: true
+  name: "dagster"
+  annotations:
+    eks.amazonaws.com/role-arn: "arn:aws:iam::250566739804:role/dagster-s3-access-lab-cluster"
+
+postgresql:
+  enabled: false
+  postgresqlHost: ""
+  postgresqlUsername: "db_admin"
+  postgresqlDatabase: "main"
+  postgresqlPort: 5432
+  postgresqlPasswordSecret: "dagster-rds-secret"
+
+computeLogManager:
+  type: S3ComputeLogManager
+  config:
+    s3ComputeLogManager:
+      bucket: "lab-dagster-storage-250566739804"
+      prefix: "logs/"
+
+env:
+  - name: DAGSTER_S3_BUCKET
+    value: "lab-dagster-storage-250566739804"
+
+dagsterWebserver:
+  ingress:
+    enabled: true
+    ingressClassName: alb
+    annotations:
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    path: /dagster
+    pathType: Prefix
+
+dagsterDaemon:
+  runCoordinator:
+    config:
+      queuedRunCoordinator:
+        maxConcurrentRuns: 10

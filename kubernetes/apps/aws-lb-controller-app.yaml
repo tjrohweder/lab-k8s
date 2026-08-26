@@ -1,26 +1,24 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: dagster
-  namespace: dagster
+  name: aws-load-balancer-controller
+  namespace: kube-system
 spec:
   project: default
   sources:
-    - repoURL: 'https://dagster-io.github.io/helm'
-      chart: dagster
-      targetRevision: 1.13.19
+    - repoURL: 'https://aws.github.io/eks-charts'
+      chart: aws-load-balancer-controller
+      targetRevision: 3.5.0
       helm:
         valueFiles:
-          - $valuesRepo/kubernetes/values/dagster-values.yaml
+          - $valuesRepo/kubernetes/values/aws-lb-controller-values.yaml
     - repoURL: 'https://github.com/tjrohweder/lab-k8s.git'
       targetRevision: HEAD
       ref: valuesRepo
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: dagster
+    namespace: kube-system
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
