@@ -1,4 +1,4 @@
-apiVersion: karpenter.sh/v1beta1
+apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
   name: default
@@ -13,19 +13,21 @@ spec:
           operator: In
           values: ["t3a", "m8a", "c8a"]
       nodeClassRef:
-        apiVersion: karpenter.k8s.aws/v1beta1
+        group: karpenter.k8s.aws
         kind: EC2NodeClass
         name: default
   limits:
     cpu: "100"
 ---
-apiVersion: karpenter.k8s.aws/v1beta1
+apiVersion: karpenter.k8s.aws/v1
 kind: EC2NodeClass
 metadata:
   name: default
 spec:
   amiFamily: AL2
   role: "KarpenterNodeRole-lab-cluster"
+  amiSelectorTerms:
+    - alias: al2@latest
   subnetSelectorTerms:
     - tags:
         karpenter.sh/discovery: "lab-cluster"
