@@ -1,7 +1,8 @@
-serviceAccount:
-  annotations:
-    eks.amazonaws.com/role-arn: "arn:aws:iam::250566739804:role/karpenter-controller-lab"
 settings:
-  aws:
-    clusterName: "lab-cluster"
-    defaultInstanceProfile: "KarpenterNodeProfile-lab-cluster"
+  clusterName: "lab-cluster"
+
+serviceAccount:
+  create: true
+  name: karpenter
+  annotations:
+    eks.amazonaws.com/role-arn: "arn:aws:iam::250566739804:role/karpenter-lab-cluster"
