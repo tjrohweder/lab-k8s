@@ -8,7 +8,7 @@ spec:
   sources:
     - repoURL: 'public.ecr.aws/karpenter'
       chart: karpenter
-      targetRevision: v0.6.0
+      targetRevision: 1.14.1
       helm:
         valueFiles:
           - $valuesRepo/kubernetes/values/karpenter-values.yaml
