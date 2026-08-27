@@ -23,16 +23,15 @@ env:
   - name: DAGSTER_S3_BUCKET
     value: "lab-dagster-storage-250566739804"
 
-dagsterWebserver:
-  ingress:
-    enabled: true
-    ingressClassName: alb
-    annotations:
-      alb.ingress.kubernetes.io/scheme: internet-facing
-      alb.ingress.kubernetes.io/target-type: ip
-      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
-    path: /dagster
-    pathType: Prefix
+ingress:
+  enabled: true
+  ingressClassName: alb
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+  path: /dagster
+  pathType: Prefix
 
 dagsterDaemon:
   runCoordinator:
