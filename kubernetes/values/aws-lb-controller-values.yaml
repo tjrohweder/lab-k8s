@@ -1,5 +1,5 @@
 clusterName: "lab-cluster"
-region: "eu-east-1"
+region: "us-east-1"
 vpcId: "vpc-0ff6c8b10ae174007"
 serviceAccount:
   create: true
