@@ -1,20 +1,28 @@
 apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
-  name: default
+  name: dagster-workers
 spec:
+  weight: 100
   template:
     spec:
+      taints:
+        - key: workload
+          value: dagster
+          effect: NoSchedule
       requirements:
         - key: karpenter.sh/capacity-type
           operator: In
           values: ["spot", "on-demand"]
         - key: karpenter.k8s.aws/instance-category
           operator: In
-          values: ["t", "m", "c"]
+          values: ["c", "m", "r"]
         - key: karpenter.k8s.aws/instance-generation
           operator: Gt
-          values: ["2"]
+          values: ["5"]
+        - key: karpenter.k8s.aws/instance-cpu-manufacturer
+          operator: In
+          values: ["amd"]
         - key: kubernetes.io/arch
           operator: In
           values: ["amd64"]
@@ -26,7 +34,35 @@ spec:
     consolidationPolicy: WhenEmptyOrUnderutilized
     consolidateAfter: 1m
   limits:
-    cpu: "100"
+    cpu: "200"
+---
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: default
+spec:
+  weight: 50
+  template:
+    spec:
+      requirements:
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["spot", "on-demand"]
+        - key: karpenter.k8s.aws/instance-family
+          operator: In
+          values: ["t3a"]
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+      nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+        name: default
+  disruption:
+    consolidationPolicy: WhenEmptyOrUnderutilized
+    consolidateAfter: 1m
+  limits:
+    cpu: "50"
 ---
 apiVersion: karpenter.k8s.aws/v1
 kind: EC2NodeClass
