@@ -19,7 +19,7 @@ spec:
           values: ["c", "m", "r"]
         - key: karpenter.k8s.aws/instance-generation
           operator: Gt
-          values: ["5"]
+          values: ["6"]
         - key: karpenter.k8s.aws/instance-cpu-manufacturer
           operator: In
           values: ["amd"]
