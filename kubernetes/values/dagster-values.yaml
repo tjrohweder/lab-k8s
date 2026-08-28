@@ -31,7 +31,8 @@ ingress:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
-  path: /dagster
+  host: dagster.tjrohweder.com
+  path: /
   pathType: Prefix
 
 dagsterDaemon:
@@ -39,3 +40,17 @@ dagsterDaemon:
     config:
       queuedRunCoordinator:
         maxConcurrentRuns: 10
+
+runLauncher:
+  type: K8sRunLauncher
+  config:
+    k8sRunLauncher:
+      runK8sConfig:
+        podSpecConfig:
+          nodeSelector:
+            karpenter.k8s.aws/instance-cpu-manufacturer: amd
+          tolerations:
+            - key: workload
+              operator: Equal
+              value: dagster
+              effect: NoSchedule
