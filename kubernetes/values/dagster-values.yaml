@@ -7,7 +7,7 @@ serviceAccount:
   create: true
   name: "dagster"
   annotations:
-    eks.amazonaws.com/role-arn: "arn:aws:iam::250566739804:role/dagster-role-lab-cluster"
+    eks.amazonaws.com/role-arn: "arn:aws:iam::250566739804:role/dagster-role-lab"
 
 ingress:
   enabled: true
