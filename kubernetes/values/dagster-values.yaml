@@ -99,3 +99,6 @@ runLauncher:
 dagster-user-deployments:
   enabled: false
   deployments: []
+
+workspace:
+  enabled: false
