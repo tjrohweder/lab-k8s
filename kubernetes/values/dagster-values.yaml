@@ -95,10 +95,3 @@ runLauncher:
               operator: Equal
               value: dagster
               effect: NoSchedule
-
-dagster-user-deployments:
-  enabled: false
-  deployments: []
-
-workspace:
-  enabled: false
