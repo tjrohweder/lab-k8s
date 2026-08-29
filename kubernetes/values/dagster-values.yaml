@@ -19,7 +19,7 @@ ingress:
     alb.ingress.kubernetes.io/backend-protocol: HTTP
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io/ssl-redirect: '443'
-    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:250566739804:certificate/51c8567f-d153-4c15-a6a3-d59cef14e40a"
+    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:250566739804:certificate/4fba9f41-b881-4f06-961d-1feec361dc75"
 
   dagsterWebserver:
     host: "dagster.tjrohweder.com"
