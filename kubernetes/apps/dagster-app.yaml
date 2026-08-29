@@ -24,3 +24,21 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dagster-resources
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/tjrohweder/lab-k8s.git'
+    targetRevision: HEAD
+    path: kubernetes/manifests/dagster
+  destination:
+    server: 'https://kubernetes.default.svc'
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

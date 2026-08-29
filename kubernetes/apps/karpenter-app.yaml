@@ -36,7 +36,7 @@ spec:
   source:
     repoURL: 'https://github.com/tjrohweder/lab-k8s.git'
     targetRevision: HEAD
-    path: kubernetes/manifests
+    path: kubernetes/manifests/karpenter
   destination:
     server: 'https://kubernetes.default.svc'
   syncPolicy:

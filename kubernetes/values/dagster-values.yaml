@@ -1,16 +1,38 @@
+global:
+  postgresqlSecretName: "dagster-postgresql-secret"
+
+generatePostgresqlPasswordSecret: false
+
 serviceAccount:
   create: true
   name: "dagster"
   annotations:
-    eks.amazonaws.com/role-arn: "arn:aws:iam::250566739804:role/dagster-s3-access-lab-cluster"
+    eks.amazonaws.com/role-arn: "arn:aws:iam::250566739804:role/dagster-role-lab-cluster"
+
+ingress:
+  enabled: true
+  ingressClassName: "alb"
+  annotations:
+    alb.ingress.kubernetes.io/group.name: "lab-public-alb"
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/backend-protocol: HTTP
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:250566739804:certificate/51c8567f-d153-4c15-a6a3-d59cef14e40a"
+
+  dagsterWebserver:
+    host: "dagster.tjrohweder.com"
+    path: "/"
+    pathType: Prefix
 
 postgresql:
   enabled: false
-  postgresqlHost: ""
+  postgresqlHost: "lab.cs0qvb1gthx8.us-east-1.rds.amazonaws.com"
   postgresqlUsername: "db_admin"
   postgresqlDatabase: "main"
   postgresqlPort: 5432
-  postgresqlPasswordSecret: "dagster-rds-secret"
+  postgresqlPasswordSecret: "dagster-postgresql-secret"
 
 computeLogManager:
   type: S3ComputeLogManager
@@ -19,32 +41,51 @@ computeLogManager:
       bucket: "lab-dagster-storage-250566739804"
       prefix: "logs/"
 
-env:
-  - name: DAGSTER_S3_BUCKET
-    value: "lab-dagster-storage-250566739804"
-
-ingress:
-  enabled: true
-  ingressClassName: alb
-  annotations:
-    alb.ingress.kubernetes.io/group.name: "lab-public-alb"
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
-  host: dagster.tjrohweder.com
-  path: /
-  pathType: Prefix
+dagsterWebserver:
+  env:
+    - name: DAGSTER_S3_BUCKET
+      value: "lab-dagster-storage-250566739804"
+  volumes:
+    - name: secrets-store-inline
+      csi:
+        driver: secrets-store.csi.k8s.io
+        readOnly: true
+        volumeAttributes:
+          secretProviderClass: "rds-secret-provider"
+  volumeMounts:
+    - name: secrets-store-inline
+      mountPath: "/mnt/secrets-store"
+      readOnly: true
 
 dagsterDaemon:
+  enabled: true
   runCoordinator:
+    enabled: true
+    type: QueuedRunCoordinator
     config:
       queuedRunCoordinator:
         maxConcurrentRuns: 10
+  env:
+    - name: DAGSTER_S3_BUCKET
+      value: "lab-dagster-storage-250566739804"
+  volumes:
+    - name: secrets-store-inline
+      csi:
+        driver: secrets-store.csi.k8s.io
+        readOnly: true
+        volumeAttributes:
+          secretProviderClass: "rds-secret-provider"
+  volumeMounts:
+    - name: secrets-store-inline
+      mountPath: "/mnt/secrets-store"
+      readOnly: true
 
 runLauncher:
   type: K8sRunLauncher
   config:
     k8sRunLauncher:
+      envVars:
+        - "DAGSTER_S3_BUCKET=lab-dagster-storage-250566739804"
       runK8sConfig:
         podSpecConfig:
           nodeSelector:
@@ -54,3 +95,7 @@ runLauncher:
               operator: Equal
               value: dagster
               effect: NoSchedule
+
+dagster-user-deployments:
+  enabled: false
+  deployments: []
