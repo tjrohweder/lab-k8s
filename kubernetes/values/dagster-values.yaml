@@ -47,7 +47,6 @@ computeLogManager:
       prefix: "logs/"
 
 dagsterWebserver:
-  serviceAccountName: "dagster"
   podSecurityContext:
     fsGroup: 1000
   env:
@@ -71,7 +70,6 @@ dagsterWebserver:
 
 dagsterDaemon:
   enabled: true
-  serviceAccountName: "dagster"
   podSecurityContext:
     fsGroup: 1000
   runCoordinator:
