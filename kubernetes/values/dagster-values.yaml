@@ -96,6 +96,8 @@ runLauncher:
       runK8sConfig:
         podSpecConfig:
           serviceAccountName: "dagster"
+          securityContext:
+            fsGroup: 1000
           nodeSelector:
             karpenter.k8s.aws/instance-cpu-manufacturer: amd
           tolerations:
@@ -116,6 +118,8 @@ dagster-user-deployments:
   deployments:
     - name: "dummy-pipeline"
       serviceAccountName: "dagster"
+      podSecurityContext:
+        fsGroup: 1000
       image:
         repository: "250566739804.dkr.ecr.us-east-1.amazonaws.com/dagster-dummy-pipeline-lab"
         tag: "latest"
