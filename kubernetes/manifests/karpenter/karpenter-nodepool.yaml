@@ -78,7 +78,7 @@ spec:
         karpenter.sh/discovery: "lab-cluster"
   securityGroupSelectorTerms:
     - tags:
-      karpenter.sh/discovery: "lab-cluster"
+        karpenter.sh/discovery: "lab-cluster"
   blockDeviceMappings:
     - deviceName: /dev/xvda
       ebs:
