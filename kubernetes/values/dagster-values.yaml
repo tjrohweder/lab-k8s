@@ -93,6 +93,7 @@ runLauncher:
         - "DAGSTER_S3_BUCKET=lab-dagster-storage-250566739804"
       runK8sConfig:
         podSpecConfig:
+          serviceAccountName: "dagster"
           nodeSelector:
             karpenter.k8s.aws/instance-cpu-manufacturer: amd
           tolerations:
@@ -104,7 +105,7 @@ runLauncher:
 dagster-user-deployments:
   enabled: true
   deployments:
-    - name: "hydrosat-pipeline"
+    - name: "dummy-pipeline"
       image:
         repository: "250566739804.dkr.ecr.us-east-1.amazonaws.com/dagster-dummy-pipeline-lab"
         tag: "latest"
