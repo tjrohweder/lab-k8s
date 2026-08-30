@@ -78,7 +78,7 @@ spec:
         karpenter.sh/discovery: "lab-cluster"
   securityGroupSelectorTerms:
     - tags:
-        aws:eks:cluster-name: "lab-cluster"
+      karpenter.sh/discovery: "lab-cluster"
   blockDeviceMappings:
     - deviceName: /dev/xvda
       ebs:
