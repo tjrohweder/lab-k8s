@@ -127,6 +127,9 @@ runLauncher:
 
 dagster-user-deployments:
   enabled: true
+  serviceAccount:
+    create: false
+    name: "dagster"
   deployments:
     - name: "dummy-pipeline"
       serviceAccountName: "dagster"
