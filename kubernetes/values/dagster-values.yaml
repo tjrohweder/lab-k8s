@@ -33,7 +33,7 @@ ingress:
 
 postgresql:
   enabled: false
-  postgresqlHost: "lab.cs0qvb1gthx8.us-east-1.rds.amazonaws.com:5432"
+  postgresqlHost: "lab.cs0qvb1gthx8.us-east-1.rds.amazonaws.com"
   postgresqlUsername: "db_admin"
   postgresqlDatabase: "main"
   postgresqlPort: 5432
@@ -123,7 +123,7 @@ runLauncher:
               command:
                 - 'sh'
                 - '-c'
-                - 'apt-get update && apt-get install -y dnsutils && until nslookup lab.cs0qvb1gthx8.us-east-1.rds.amazonaws.com:5432; do echo "Waiting for connectivity"; sleep 2; done'
+                - 'apt-get update && apt-get install -y dnsutils && until nslookup lab.cs0qvb1gthx8.us-east-1.rds.amazonaws.com; do echo "Waiting for connectivity"; sleep 2; done'
 
 dagster-user-deployments:
   enabled: true
