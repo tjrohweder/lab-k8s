@@ -100,3 +100,21 @@ runLauncher:
               operator: Equal
               value: dagster
               effect: NoSchedule
+
+dagster-user-deployments:
+  enabled: true
+  deployments:
+    - name: "hydrosat-pipeline"
+      image:
+        repository: "250566739804.dkr.ecr.us-east-1.amazonaws.com/dagster-dummy-pipeline-lab"
+        tag: "latest"
+        pullPolicy: Always
+      dagsterApiGrpcArgs:
+        - "--python-file"
+        - "/opt/dagster/app/repo.py"
+      port: 3030
+      env:
+        - name: AWS_REGION
+          value: "us-east-1"
+        - name: SNS_ALERTS_TOPIC_ARN
+          value: "arn:aws:sns:us-east-1:250566739804:dagster-alerts-lab"
