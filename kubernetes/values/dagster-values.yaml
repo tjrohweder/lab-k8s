@@ -91,6 +91,8 @@ runLauncher:
     k8sRunLauncher:
       envVars:
         - "DAGSTER_S3_BUCKET=lab-dagster-storage-250566739804"
+        - "AWS_REGION=us-east-1"
+        - "AWS_DEFAULT_REGION=us-east-1"
       runK8sConfig:
         podSpecConfig:
           serviceAccountName: "dagster"
@@ -113,6 +115,7 @@ dagster-user-deployments:
   enabled: true
   deployments:
     - name: "dummy-pipeline"
+      serviceAccountName: "dagster"
       image:
         repository: "250566739804.dkr.ecr.us-east-1.amazonaws.com/dagster-dummy-pipeline-lab"
         tag: "latest"
