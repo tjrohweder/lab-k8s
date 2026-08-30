@@ -85,6 +85,8 @@ dagsterDaemon:
       value: "us-east-1"
     - name: AWS_DEFAULT_REGION
       value: "us-east-1"
+    - name: SNS_ALERTS_TOPIC_ARN
+      value: "arn:aws:sns:us-east-1:250566739804:dagster-alerts-lab"
   volumes:
     - name: secrets-store-inline
       csi:
