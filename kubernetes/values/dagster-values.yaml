@@ -47,9 +47,16 @@ computeLogManager:
       prefix: "logs/"
 
 dagsterWebserver:
+  serviceAccountName: "dagster"
+  podSecurityContext:
+    fsGroup: 1000
   env:
     - name: DAGSTER_S3_BUCKET
       value: "lab-dagster-storage-250566739804"
+    - name: AWS_REGION
+      value: "us-east-1"
+    - name: AWS_DEFAULT_REGION
+      value: "us-east-1"
   volumes:
     - name: secrets-store-inline
       csi:
@@ -64,6 +71,9 @@ dagsterWebserver:
 
 dagsterDaemon:
   enabled: true
+  serviceAccountName: "dagster"
+  podSecurityContext:
+    fsGroup: 1000
   runCoordinator:
     enabled: true
     type: QueuedRunCoordinator
@@ -73,6 +83,10 @@ dagsterDaemon:
   env:
     - name: DAGSTER_S3_BUCKET
       value: "lab-dagster-storage-250566739804"
+    - name: AWS_REGION
+      value: "us-east-1"
+    - name: AWS_DEFAULT_REGION
+      value: "us-east-1"
   volumes:
     - name: secrets-store-inline
       csi:
@@ -130,6 +144,8 @@ dagster-user-deployments:
       port: 3030
       env:
         - name: AWS_REGION
+          value: "us-east-1"
+        - name: AWS_DEFAULT_REGION
           value: "us-east-1"
         - name: SNS_ALERTS_TOPIC_ARN
           value: "arn:aws:sns:us-east-1:250566739804:dagster-alerts-lab"
