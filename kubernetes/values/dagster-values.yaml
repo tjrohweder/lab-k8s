@@ -20,6 +20,11 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io/ssl-redirect: '443'
     alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:250566739804:certificate/099a0bd7-ed1f-49e8-a1b7-b047dc00b417"
+    alb.ingress.kubernetes.io/auth-type: cognito
+    alb.ingress.kubernetes.io/auth-session-timeout: '3600'
+    alb.ingress.kubernetes.io/auth-session-cookie: 'AWSELBAuthSessionCookie'
+    alb.ingress.kubernetes.io/auth-on-unauthenticated-request: authenticate
+    alb.ingress.kubernetes.io/auth-idp-cognito: '{"UserPoolArn":"arn:aws:cognito-idp:us-east-1:250566739804:userpool/us-east-1_1jMnSnm0C","UserPoolClientId":"2ilke9kdbc613mdeg3hcso2258","UserPoolDomain":"dagster-tjrohweder"}'
 
   dagsterWebserver:
     host: "dagster.tjrohweder.com"
