@@ -18,8 +18,8 @@ dummy_job = dg.define_asset_job(name="dummy_sns_pipeline", selection="*")
 
 @dg.run_failure_sensor
 def sns_email_alert_sensor(context: dg.RunFailureSensorContext):
-    sns_client = boto3.client('sns', region_name=os.getenv('AWS_REGION', 'us-east-1'))
-    topic_arn = os.getenv('SNS_ALERTS_TOPIC_ARN')
+    sns_client = boto3.client('sns', region_name=os.environ['AWS_REGION'])
+    topic_arn = os.environ['SNS_ALERTS_TOPIC_ARN']
 
     message = (
         f"CRITICAL ALERT: Dagster Pipeline Failure\n\n"
