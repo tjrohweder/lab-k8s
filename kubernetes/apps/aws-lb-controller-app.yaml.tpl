@@ -12,7 +12,7 @@ spec:
       helm:
         valueFiles:
           - $valuesRepo/kubernetes/values/aws-lb-controller-values.yaml
-    - repoURL: 'https://github.com/tjrohweder/lab-k8s.git'
+    - repoURL: 'https://github.com/${github_user}/lab-k8s.git'
       targetRevision: HEAD
       ref: valuesRepo
   destination:

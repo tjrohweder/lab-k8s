@@ -1,0 +1,89 @@
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: dagster-workers
+spec:
+  weight: 100
+  template:
+    spec:
+      taints:
+        - key: workload
+          value: dagster
+          effect: NoSchedule
+      requirements:
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["spot", "on-demand"]
+        - key: karpenter.k8s.aws/instance-category
+          operator: In
+          values: ["c", "m", "r"]
+        - key: karpenter.k8s.aws/instance-generation
+          operator: Gt
+          values: ["6"]
+        - key: karpenter.k8s.aws/instance-cpu-manufacturer
+          operator: In
+          values: ["amd"]
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+      nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+        name: default
+  disruption:
+    consolidationPolicy: WhenEmptyOrUnderutilized
+    consolidateAfter: 1m
+  limits:
+    cpu: "200"
+---
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: default
+spec:
+  weight: 50
+  template:
+    spec:
+      requirements:
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["spot", "on-demand"]
+        - key: karpenter.k8s.aws/instance-family
+          operator: In
+          values: ["t3a"]
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+      nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+        name: default
+  disruption:
+    consolidationPolicy: WhenEmptyOrUnderutilized
+    consolidateAfter: 1m
+  limits:
+    cpu: "50"
+---
+apiVersion: karpenter.k8s.aws/v1
+kind: EC2NodeClass
+metadata:
+  name: default
+spec:
+  amiFamily: AL2023
+  role: "${karpenter_node_role_name}"
+  amiSelectorTerms:
+    - alias: al2023@latest
+  subnetSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: "${cluster_name}"
+  securityGroupSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: "${cluster_name}"
+  blockDeviceMappings:
+    - deviceName: /dev/xvda
+      ebs:
+        volumeSize: 50Gi
+        volumeType: gp3
+        encrypted: true
+  tags:
+    Name: karpenter-node-${cluster_name}

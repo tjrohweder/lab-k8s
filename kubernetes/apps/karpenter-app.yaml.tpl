@@ -1,23 +1,23 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: dagster
+  name: karpenter
   namespace: argocd
 spec:
   project: default
   sources:
-    - repoURL: 'https://dagster-io.github.io/helm'
-      chart: dagster
-      targetRevision: 1.13.19
+    - repoURL: 'public.ecr.aws/karpenter'
+      chart: karpenter
+      targetRevision: 1.14.1
       helm:
         valueFiles:
-          - $valuesRepo/kubernetes/values/dagster-values.yaml
-    - repoURL: 'https://github.com/tjrohweder/lab-k8s.git'
+          - $valuesRepo/kubernetes/values/karpenter-values.yaml
+    - repoURL: 'https://github.com/${github_user}/lab-k8s.git'
       targetRevision: HEAD
       ref: valuesRepo
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: dagster
+    namespace: karpenter
   syncPolicy:
     automated:
       prune: true
@@ -28,14 +28,14 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: dagster-resources
+  name: karpenter-resources
   namespace: argocd
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/tjrohweder/lab-k8s.git'
+    repoURL: 'https://github.com/${github_user}/lab-k8s.git'
     targetRevision: HEAD
-    path: kubernetes/manifests/dagster
+    path: kubernetes/manifests/karpenter
   destination:
     server: 'https://kubernetes.default.svc'
   syncPolicy:

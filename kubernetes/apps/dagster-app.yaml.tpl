@@ -12,7 +12,7 @@ spec:
       helm:
         valueFiles:
           - $valuesRepo/kubernetes/values/dagster-values.yaml
-    - repoURL: 'https://github.com/tjrohweder/lab-k8s.git'
+    - repoURL: 'https://github.com/${github_user}/lab-k8s.git'
       targetRevision: HEAD
       ref: valuesRepo
   destination:
@@ -33,7 +33,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/tjrohweder/lab-k8s.git'
+    repoURL: 'https://github.com/${github_user}/lab-k8s.git'
     targetRevision: HEAD
     path: kubernetes/manifests/dagster
   destination:
