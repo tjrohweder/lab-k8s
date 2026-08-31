@@ -9,22 +9,23 @@ This test was created keeping the following aspects in mind:
 - Automation
 
 ## Requirements
-- AWS CLI
-- Credentials with administrative priviligies(The test was developed using the AWS CLI integrated with AWS Identity Center)
+- Git
+- AWS CLI(us-east-1)
+- Credentials with administrative privileges(The test was developed using the AWS CLI integrated with AWS Identity Center)
 - Terraform (v1.15+)
 - Valid public domain on Route53 for the ALB ingress
 - kubectl
 - Docker
 
 ## Architecture Diagram
-![Architecture](images/architecture.png)   
+![Architecture](images/architecture.png)
 
 ## Architecture Design & Decision Making
 
-Terraform was chosen as the IaC tool, where mostly AWS terraform modules were used to deploy critital infrastructure components
+Terraform was chosen as the IaC tool, where mostly AWS terraform modules were used to deploy critical infrastructure components.
 
 ### Best practices adopted:
-1. **Make file for abstraction:** The make file abstracts the entire implementation, already considering the possibility for multiple environments without having to use tools like Terragrunt to maintain couple of environments. For this test specificaly it also automates the docker build, push and git commit steps for better user experience.
+1. **Makefile for abstraction:** The Makefile abstracts the entire implementation, already considering the possibility for multiple environments without having to use tools like Terragrunt to maintain couple of environments. For this test specifically it also automates the docker build, push and git commit steps for better user experience.
 
 2. **Variable validations:** Validations were implemented to ensure consistency and code reliability. This fail-fast approach prevents AWS API errors downstream (e.g., validating CIDR blocks) and provides user-friendly error messages.
 
@@ -78,25 +79,29 @@ To maintain the agility of this lab environment, Docker images are built and pus
 
 ## How to start?
 
-1. Fork the test repository
-2. Create a S3 bucket.
-3. Create `backend.tfvars` file contining the s3 backend configuration. This file should be located at `terraform/env/dev/vars/backend.tfvars` and have the following content:
+1. Fork the test repository and clone it(SSH)
+2. Create an S3 bucket.
+3. Create `backend.tfvars` file containing the s3 backend configuration. This file should be located at `terraform/env/dev/vars/backend.tfvars` and have the following content:
 ```hcl
 bucket  = "<BUCKET_NAME>"
 key     = "dev/terraform.tfstate"
 region  = "us-east-1"
 encrypt = true
 ```
-4. Export the AWS environment as an env var
+
+4. Export the AWS environment and AWS credentials(if applicable)
 ```bash
+export AWS_PROFILE=your_profile
 export ENV=dev
 ```
+
 5. Change the necessary values on `terraform.tfvars` file according to your user and AWS account information. This file is located at `terraform/env/dev/vars/terraform.tfvars`.
 
-6. Create the all the necessary infrastructure with the following command:
+6. Create all the necessary infrastructure with the following command:
 ```bash
 make all
 ```
+
 7. When the deployment is finished, you'll receive the cognito configuration as outputs. You'll need that to create a user to access the Dagster webserver
 
 8. Create cognito user to access dagster. You need to inform the user_pool_id(Terraform Output) and the user password
@@ -106,7 +111,7 @@ aws cognito-idp admin-create-user --user-pool-id <USER_POOL_ID> --username hsat 
 aws cognito-idp admin-set-user-password --user-pool-id <USER_POOL_ID> --username hsat --password "<PASSWORD>" --permanent
 ```
 
-9. Confirm the SNS subscription on on your email. This email might be on your SPAM folder
+9. Confirm the SNS subscription on your email. This email might be on your SPAM folder.
 
 10. Generate the kubeconfig for the EKS cluster
 ```bash
@@ -118,17 +123,17 @@ aws eks update-kubeconfig --name lab-cluster
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
 ```
 
-12. After ~5 minutes the cluster components reconciliation loops already identity and applied the changes. You can access ArgoCD and Dagster Webserver at the following addresses:
+12. After ~5 minutes the cluster components reconciliation loops already identified and applied the changes. You can access ArgoCD and Dagster Webserver at the following addresses:
 
 - https://argocd.<DOMAIN>
 - https://dagster.<DOMAIN>
 
 ## Running the dagster job
-The public UI is secured with an AWS Cognito ALB Ingress (Zero Trust). To interact with the Dagster GraphQL API for automation, use a secure internal tunnel via port-forwaring
+The public UI is secured with an AWS Cognito ALB Ingress (Zero Trust). To interact with the Dagster GraphQL API for automation, use a secure internal tunnel via port-forwarding.
 
 1. Open a local tunnel to the Webserver pod:
 ```bash
-kubectl port-forward svc/dagster-dagster-webserver 3000:80 -n default
+kubectl port-forward svc/dagster-dagster-webserver 3000:80 -n dagster
 ```
 
 2. Enable the SNS Alert Sensor:
@@ -144,3 +149,23 @@ curl -X POST http://localhost:3000/graphql \
   -H "Content-Type: application/json" \
   -d '{"query": "mutation { launchRun(executionParams: { selector: { repositoryLocationName: \"dummy-pipeline\", repositoryName: \"__repository__\", jobName: \"dummy_sns_pipeline\" } }) { __typename } }"}'
 ```
+
+## Teardown
+
+To destroy the provisioned infrastructure, run the following command:
+```bash
+make destroy
+```
+
+### Known Limitations: Teardown Process
+Due to the integration between Kubernetes controllers and AWS resources, you might encounter the following issues during the make destroy execution:
+
+**ArgoCD Deletion Timeout:** The ArgoCD Helm release might hang and time out during deletion due to lingering Kubernetes finalizers holding the namespace.
+
+**VPC Deletion Failure (ALB Dependency):** The AWS Load Balancer Controller dynamically provisions the Application Load Balancer and its associated Security Groups based on the Ingress resource. Because these components are created outside of Terraform's direct state tracking, Terraform will fail to delete the VPC on the first pass since the ALB's Security Groups are still attached to active ENIs.
+
+### Workaround for clean up
+- **ArgoCD:** Run make destroy again.
+- **Public subnets:** Navigate to the AWS Console -> EC2 -> Load Balancers and delete the ALB associated with the cluster.
+- **VPC:** Navigate to EC2 -> Security Groups and delete the security group created for the ALB. You can also delete the VPC via console as it will also delete the related Security Groups.
+- Terraform will now successfully remove the remaining VPC components.
