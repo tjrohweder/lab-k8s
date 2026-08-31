@@ -1,0 +1,7 @@
+dagster==1.13.20
+dagster-aws==0.29.20
+dagster-postgres==0.29.20
+boto3==1.43
+requests==2.34
+pandas==3.0.5
+lxml==6.1
