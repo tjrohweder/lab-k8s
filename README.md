@@ -25,57 +25,59 @@ This test was created keeping the following aspects in mind:
 Terraform was chosen as the IaC tool, where mostly AWS terraform modules were used to deploy critical infrastructure components.
 
 ### Best practices adopted:
-1. **Makefile for abstraction:** The Makefile abstracts the entire implementation, already considering the possibility for multiple environments without having to use tools like Terragrunt to maintain couple of environments. For this test specifically it also automates the docker build, push and git commit steps for better user experience.
+**Makefile for abstraction:** The Makefile abstracts the entire implementation, already considering the possibility for multiple environments without having to use tools like Terragrunt to maintain couple of environments. For this test specifically it also automates the docker build, push and git commit steps for better user experience.
 
-2. **Variable validations:** Validations were implemented to ensure consistency and code reliability. This fail-fast approach prevents AWS API errors downstream (e.g., validating CIDR blocks) and provides user-friendly error messages.
+**Variable validations:** Validations were implemented to ensure consistency and code reliability. This fail-fast approach prevents AWS API errors downstream (e.g., validating CIDR blocks) and provides user-friendly error messages.
 
-3. **Terraform template files:** `templatefile` functions automate the ArgoCD manifest generation, ensuring the evaluator does not need to manually edit Helm values or repository URLs.
+**Terraform template files:** `templatefile` functions automate the ArgoCD manifest generation, ensuring the evaluator does not need to manually edit Helm values or repository URLs.
 
-4. Compute & Auto-scaling (Karpenter)
+**Compute & Auto-scaling (Karpenter)**
 Karpenter was selected over the traditional Cluster Autoscaler to provide rapid, intent-based, and group-less node provisioning. The cluster infrastructure relies on a two-tiered NodePool strategy configured for maximum performance and cost-efficiency:
 
-**Data Workers (dagster-workers):** Dedicated strictly to Dagster workloads via NoSchedule taints. The pool dynamically provisions Spot and On-Demand instances restricted to compute, memory, and general-purpose families (c, m, r), exclusively targeting AWS generation 7 and 8 with AMD processors (e.g., C7a, R7a). This hardware mapping ensures access to the latest AMD EPYC architectures and DDR5 memory for brute-force data processing.
+1. **Data Workers (dagster-workers):** Dedicated strictly to Dagster workloads via NoSchedule taints. The pool dynamically provisions Spot and On-Demand instances restricted to compute, memory, and general-purpose families (c, m, r), exclusively targeting AWS generation 7 and 8 with AMD processors (e.g., C7a, R7a). This hardware mapping ensures access to the latest AMD EPYC architectures and DDR5 memory for optimal data processing.
 
-**System Workloads (default):** Provisions highly cost-effective, burstable t3a instances designed solely to handle lightweight Kubernetes add-ons and other core cluster components.
+2. **System Workloads (default):** Provisions highly cost-effective, burstable t3a instances designed solely to handle lightweight Kubernetes add-ons and other core cluster components.
 
-**Optimization & Security:** All nodes are provisioned using Amazon Linux 2023 (AL2023) backed by encrypted 50Gi gp3 EBS volumes, ensuring modern security standards and consistent IOPS. An aggressive consolidation policy (WhenEmptyOrUnderutilized after 1 minute) ensures that temporary pipeline hardware is rapidly destroyed to minimize cloud costs.
+3. **Optimization & Security:** All nodes are provisioned using Amazon Linux 2023 (AL2023) backed by encrypted 50Gi gp3 EBS volumes, ensuring modern security standards and consistent IOPS. An aggressive consolidation policy (WhenEmptyOrUnderutilized after 1 minute) ensures that temporary pipeline hardware is rapidly destroyed to minimize cloud costs.
 
-5. Container Optimization & Resiliency
+**Container Optimization & Resiliency**
 The custom Dagster application image (python:3.14-slim) is heavily optimized for Kubernetes environments:
 
-**PID 1 Signal Handling:** Uses dumb-init as the entrypoint. When Karpenter scales down nodes, dumb-init intercepts the SIGTERM signal and passes it to Python, ensuring graceful pipeline shutdowns instead of abrupt SIGKILL terminations.
+1. **PID 1 Signal Handling:** Uses dumb-init as the entrypoint. When Karpenter scales down nodes, dumb-init intercepts the SIGTERM signal and passes it to Python, ensuring graceful pipeline shutdowns instead of abrupt SIGKILL terminations.
 
-**Security Context:** The container runs entirely as a non-root user (UID 1000), natively matching the Kubernetes fsGroup constraints.
+2. **Security Context:** The container runs entirely as a non-root user (UID 1000), natively matching the Kubernetes fsGroup constraints.
 
-**Observability:** PYTHONUNBUFFERED=1 is injected to ensure logs stream instantly to the Dagster UI without being trapped in the language buffer.
+3. **Observability:** PYTHONUNBUFFERED=1 is injected to ensure logs stream instantly to the Dagster UI without being trapped in the language buffer.
 
-6. Zero Trust Security (Cognito)
+**Zero Trust Security (Cognito)**
 The Dagster UI is not publicly exposed. The AWS Load Balancer Controller is integrated with an AWS Cognito User Pool via Ingress annotations. This enforces a Zero Trust architecture, requiring authentication at the edge before any traffic reaches the Kubernetes cluster.
 
-7. Secrets Management & State Security (CSI Driver)
+**Secrets Management & State Security (CSI Driver)**
 The database master credentials are never stored in the Terraform state. By utilizing the RDS `manage_master_user_password` flag, AWS generates and manages the credential directly in AWS Secrets Manager. The Kubernetes workloads then retrieve this credential dynamically using the **AWS Secrets Store CSI Driver**, mounting it securely at runtime. This architecture eliminates the use of base64-encoded native Kubernetes Secrets and prevents credential leakage in Git or IaC state files.
 
-8. Event-Driven Alerting (AWS SNS)
+**Event-Driven Alerting (AWS SNS)**
 Instead of hardcoding SMTP servers or Slack webhooks directly inside the Dagster pipeline, AWS SNS (Simple Notification Service) was chosen for failure alerts. This provides a decoupled, event-driven architecture. A single failure event published to the SNS topic can easily "fan-out" to multiple subscribers (e.g., Email, SMS, PagerDuty via Lambda, or SQS queues) without requiring any modifications to the application code, offloading delivery reliability to a fully managed AWS service.
 
-9. Scope Focus: The Validation Pipeline
+**Scope Focus: The Validation Pipeline**
 The deployed Dagster pipeline is intentionally kept minimal (a "dummy" workflow). Since this assessment evaluates Cloud Platform Engineering and Infrastructure architecture, the pipeline's sole purpose is to act as an end-to-end infrastructure validator. It proves that:
 
-- The GraphQL API is accessible and responsive via the secure tunnel.
-- Dedicated worker nodes scale up dynamically via Karpenter tolerations.
-- The application can securely authenticate with external AWS services (SNS via IAM Roles for Service Accounts).
-- The Failure Sensor can successfully trigger event-driven architecture.
+1. The GraphQL API is accessible and responsive via the secure tunnel.
+2. Dedicated worker nodes scale up dynamically via Karpenter tolerations.
+3. The application can securely authenticate with external AWS services (SNS via IAM Roles for Service Accounts).
+4. The Failure Sensor can successfully trigger event-driven architecture.
 Complex data transformations were omitted to keep the evaluation focused strictly on platform resiliency, security, and GitOps automation.
 
-10. Future Roadmap: Observability
-For this lab, observability relies on native AWS CloudWatch. Deploying the full kube-prometheus-stack via ArgoCD was intentionally avoided, as it would consume unnecessary compute resources and increase deployment time just to monitor a dummy pipeline. This decision keeps the cluster lean and preserves the "one-click deploy" evaluator experience. For a production environment, the natural next step is migrating to AWS Managed Prometheus and Grafana.
+**Future Roadmap: Observability & Incident Response**
+For this lab, observability relies on native AWS CloudWatch. Deploying the full `kube-prometheus-stack` via ArgoCD was intentionally avoided, as it would consume unnecessary compute resources and increase deployment time just to monitor a dummy pipeline. This decision keeps the cluster lean and preserves the "one-click deploy" evaluator experience. 
 
-11. Future Roadmap: Advanced Container Security
+For a production environment, the natural next step is migrating to AWS Managed Prometheus and Grafana for Kubernetes metric scraping. Additionally, the SNS alerting pipeline would be natively integrated with an Incident Management platform like **PagerDuty** via HTTPS webhooks, ensuring that critical pipeline failures automatically trigger on-call rotations, escalation policies, and incident tracking.
+
+**Future Roadmap: Advanced Container Security**
 To maintain the agility of this lab environment, Docker images are built and pushed with standard tags. However, in a strict production environment, the deployment strategy would incorporate two key Supply Chain Security enhancements:
 
-**Vulnerability Scanning:** Integrating Trivy into the CI pipeline (and as an in-cluster operator) to block the deployment of images containing critical CVEs.
+1. **Vulnerability Scanning:** Integrating Trivy into the CI pipeline (and as an in-cluster operator) to block the deployment of images containing critical CVEs.
 
-**Immutable Digests:** ArgoCD manifests would reference image digests (@sha256:...) instead of mutable tags (latest or v1.0). This guarantees deployment immutability and protects the cluster against image spoofing attacks.
+2. **Immutable Digests:** ArgoCD manifests would reference image digests (@sha256:...) instead of mutable tags (latest or v1.0). This guarantees deployment immutability and protects the cluster against image spoofing attacks.
 
 ## How to start?
 
@@ -165,7 +167,7 @@ Due to the integration between Kubernetes controllers and AWS resources, you mig
 **VPC Deletion Failure (ALB Dependency):** The AWS Load Balancer Controller dynamically provisions the Application Load Balancer and its associated Security Groups based on the Ingress resource. Because these components are created outside of Terraform's direct state tracking, Terraform will fail to delete the VPC on the first pass since the ALB's Security Groups are still attached to active ENIs.
 
 ### Workaround for clean up
-- **ArgoCD:** Run make destroy again.
+- **ArgoCD:** Run `make destroy` again.
 - **Public subnets:** Navigate to the AWS Console -> EC2 -> Load Balancers and delete the ALB associated with the cluster.
 - **VPC:** Navigate to EC2 -> Security Groups and delete the security group created for the ALB. You can also delete the VPC via console as it will also delete the related Security Groups.
-- Terraform will now successfully remove the remaining VPC components.
+- Terraform will now successfully remove the remaining components.
