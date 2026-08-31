@@ -30,4 +30,15 @@ module "vpc" {
   create_elasticache_subnet_group = var.vpc.create_elasticache_subnet_group
   create_egress_only_igw          = var.vpc.create_egress_only_igw
   create_redshift_subnet_group    = var.vpc.create_redshift_subnet_group
+
+  public_subnet_tags = {
+    "kubernetes.io/role/elb"                            = 1
+    "kubernetes.io/cluster/${var.project.name}-cluster" = "shared"
+  }
+
+  private_subnet_tags = {
+    "kubernetes.io/role/internal-elb"                   = 1
+    "karpenter.sh/discovery"                            = "${var.project.name}-cluster"
+    "kubernetes.io/cluster/${var.project.name}-cluster" = "shared"
+  }
 }

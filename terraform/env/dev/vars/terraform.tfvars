@@ -1,3 +1,7 @@
+github = {
+  username = "tjrohweder"
+}
+
 project = {
   name  = "lab"
   env   = "dev"
@@ -21,15 +25,16 @@ eks = {
   ami                                      = "AL2023_x86_64_STANDARD"
   endpoint_public_access                   = true
   enable_cluster_creator_admin_permissions = true
+  domain                                   = ["tjrohweder.com"]
 }
 
 db = {
-  identifier                          = "minilab"
   engine                              = "postgres"
-  engine_version                      = "18.4"
+  engine_version                      = "18.6"
   instance_class                      = "db.t4g.micro"
   security_group_name                 = "postgres"
   allocated_storage                   = 15
+  manage_master_user_password         = true
   iam_database_authentication_enabled = true
 
   db_config = {
@@ -42,4 +47,20 @@ db = {
     family               = "postgres18"
     major_engine_version = "18"
   }
+}
+
+domain = {
+  name = "tjrohweder.com"
+}
+
+ecr = {
+  repository_image_tag_mutability = "MUTABLE"
+  repository_force_delete         = true
+  repository_image_scan_on_push   = false
+  create_lifecycle_policy         = false
+}
+
+sns = {
+  protocol = "email"
+  endpoint = "tjrohweder@gmail.com"
 }

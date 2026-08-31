@@ -1,13 +1,14 @@
-/*module "db" {
+module "db" {
   source  = "terraform-aws-modules/rds/aws"
   version = "~> 7.2"
 
-  identifier = var.db.identifier
+  identifier = var.project.name
 
-  engine            = var.db.engine
-  engine_version    = var.db.engine_version
-  instance_class    = var.db.instance_class
-  allocated_storage = var.db.allocated_storage
+  engine                      = var.db.engine
+  engine_version              = var.db.engine_version
+  instance_class              = var.db.instance_class
+  allocated_storage           = var.db.allocated_storage
+  manage_master_user_password = var.db.manage_master_user_password
 
   db_name  = var.db.db_config.name
   username = var.db.db_config.username
@@ -42,4 +43,3 @@ module "db_sg" {
       description = "PostgreSQL network access"
   }, ]
 }
-*/

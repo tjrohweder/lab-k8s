@@ -13,7 +13,7 @@ server:
       alb.ingress.kubernetes.io/backend-protocol: HTTP
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
       alb.ingress.kubernetes.io/ssl-redirect: '443'
-      alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:250566739804:certificate/b61c81b7-2496-4e4d-830a-4547bdbf6fe9"
+      alb.ingress.kubernetes.io/certificate-arn: "${acm_certificate_arn}"
 
     hostname: argocd.tjrohweder.com
     path: /
