@@ -1,6 +1,6 @@
-# Lab Test
+# Lab-k8s
 
-This test was created keeping the following aspects in mind:
+This lab was created keeping the following aspects in mind:
 - Optimal evaluator experience, where you only need to run one command to deploy the entire stack
 - Performance and Scalability
 - Modular infrastructure
