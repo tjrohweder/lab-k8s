@@ -19,12 +19,12 @@ ingress:
     alb.ingress.kubernetes.io/backend-protocol: HTTP
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io/ssl-redirect: '443'
-    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:250566739804:certificate/4b804d09-b6b9-41b1-a6e9-a11abcb6f752"
+    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:250566739804:certificate/8310a6c8-55b7-4f22-80b7-039dce4252ae"
     alb.ingress.kubernetes.io/auth-type: cognito
     alb.ingress.kubernetes.io/auth-session-timeout: '3600'
     alb.ingress.kubernetes.io/auth-session-cookie: 'AWSELBAuthSessionCookie'
     alb.ingress.kubernetes.io/auth-on-unauthenticated-request: authenticate
-    alb.ingress.kubernetes.io/auth-idp-cognito: '{"UserPoolArn":"arn:aws:cognito-idp:us-east-1:250566739804:userpool/us-east-1_JBBjzn6Xw","UserPoolClientId":"4imfdn3fhqcsrjhq2hiulpengi","UserPoolDomain":"dagster-tjrohweder"}'
+    alb.ingress.kubernetes.io/auth-idp-cognito: '{"UserPoolArn":"arn:aws:cognito-idp:us-east-1:250566739804:userpool/us-east-1_BggfpQDIr","UserPoolClientId":"71ss0e5huk838vv7rg63mifpna","UserPoolDomain":"dagster-test"}'
 
   dagsterWebserver:
     host: "dagster.tjrohweder.com"
