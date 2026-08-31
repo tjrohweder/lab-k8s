@@ -1,8 +1,0 @@
-settings:
-  clusterName: "lab-cluster"
-
-serviceAccount:
-  create: true
-  name: karpenter
-  annotations:
-    eks.amazonaws.com/role-arn: "arn:aws:iam::250566739804:role/karpenter-controller-lab-cluster"

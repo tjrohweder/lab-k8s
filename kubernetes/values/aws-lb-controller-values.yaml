@@ -1,8 +1,0 @@
-clusterName: "lab-cluster"
-region: "us-east-1"
-vpcId: "vpc-05995c38e2b462354"
-serviceAccount:
-  create: true
-  name: aws-load-balancer-controller
-  annotations:
-    eks.amazonaws.com/role-arn: "arn:aws:iam::250566739804:role/aws-load-balancer-controller-lab"
