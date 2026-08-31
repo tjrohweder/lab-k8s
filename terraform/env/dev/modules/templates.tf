@@ -2,6 +2,7 @@ resource "local_file" "aws_lbc_app" {
   content = templatefile("${path.module}/../../../../kubernetes/apps/aws-lb-controller-app.yaml.tpl", {
     github_user = var.github.username
   })
+
   filename = "${path.module}/../../../../kubernetes/apps/aws-lb-controller-app.yaml"
 }
 
@@ -9,6 +10,7 @@ resource "local_file" "dagster_app" {
   content = templatefile("${path.module}/../../../../kubernetes/apps/dagster-app.yaml.tpl", {
     github_user = var.github.username
   })
+
   filename = "${path.module}/../../../../kubernetes/apps/dagster-app.yaml"
 }
 
@@ -16,6 +18,7 @@ resource "local_file" "karpenter_app" {
   content = templatefile("${path.module}/../../../../kubernetes/apps/karpenter-app.yaml.tpl", {
     github_user = var.github.username
   })
+
   filename = "${path.module}/../../../../kubernetes/apps/karpenter-app.yaml"
 }
 
@@ -26,6 +29,7 @@ resource "local_file" "aws_lb_controller_values" {
     vpc_id       = module.vpc.vpc_id
     iam_role_arn = aws_iam_role.aws_lbc_role.arn
   })
+
   filename = "${path.module}/../../../../kubernetes/values/aws-lb-controller-values.yaml"
 }
 
@@ -76,7 +80,16 @@ resource "local_file" "dagster_secret" {
 resource "local_file" "argocd_values" {
   content = templatefile("${path.module}/argocd/argocd-values.yaml.tpl", {
     acm_certificate_arn = module.acm.acm_certificate_arn
+    domain_name = "argocd.${var.domain.name}"
   })
 
   filename = "${path.module}/argocd/argocd-values.yaml"
+}
+
+resource "local_file" "argocd_app_values" {
+  content = templatefile("${path.module}/argocd/argocd-apps-values.yaml.tpl", {
+    github_user = var.github.username
+  })
+
+  filename = "${path.module}/argocd/argocd-apps-values.yaml"
 }

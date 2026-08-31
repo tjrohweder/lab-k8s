@@ -55,7 +55,7 @@ module "eks" {
       service_account_role_arn = aws_iam_role.external_dns.arn
       configuration_values = jsonencode({
         sources       = ["ingress"]
-        domainFilters = ["tjrohweder.com"]
+        domainFilters = [var.domain.name]
         env = [
           {
             name  = "AWS_REGION"

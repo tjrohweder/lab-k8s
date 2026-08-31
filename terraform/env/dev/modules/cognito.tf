@@ -1,5 +1,5 @@
 resource "aws_cognito_user_pool" "dagster_auth" {
-  name = "dagster-auth-pool"
+  name = var.cognito.user_pool_name
 
   admin_create_user_config {
     allow_admin_create_user_only = true
@@ -7,12 +7,12 @@ resource "aws_cognito_user_pool" "dagster_auth" {
 }
 
 resource "aws_cognito_user_pool_domain" "dagster_domain" {
-  domain       = "dagster-tjrohweder"
+  domain       = var.cognito.user_pool_domain
   user_pool_id = aws_cognito_user_pool.dagster_auth.id
 }
 
 resource "aws_cognito_user_pool_client" "dagster_client" {
-  name                                 = "dagster-alb-client"
+  name                                 = var.cognito.user_pool_client
   user_pool_id                         = aws_cognito_user_pool.dagster_auth.id
   generate_secret                      = true
   allowed_oauth_flows                  = ["code"]

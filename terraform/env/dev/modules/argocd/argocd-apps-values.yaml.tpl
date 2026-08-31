@@ -3,7 +3,7 @@ applications:
     namespace: argocd
     project: default
     source:
-      repoURL: https://github.com/tjrohweder/lab-k8s.git
+      repoURL: https://github.com/${github_user}/lab-k8s.git
       targetRevision: HEAD
       path: kubernetes/apps
     destination:

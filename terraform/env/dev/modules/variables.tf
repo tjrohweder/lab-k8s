@@ -137,3 +137,11 @@ variable "sns" {
     error_message = "Invalid email format for endpoint."
   }
 }
+
+variable "cognito" {
+  type = object({
+    user_pool_name   = string
+    user_pool_domain = string
+    user_pool_client = string
+  })
+}

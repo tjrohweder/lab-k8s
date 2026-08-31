@@ -15,7 +15,7 @@ server:
       alb.ingress.kubernetes.io/ssl-redirect: '443'
       alb.ingress.kubernetes.io/certificate-arn: "${acm_certificate_arn}"
 
-    hostname: argocd.tjrohweder.com
+    hostname: "${domain_name}"
     path: /
     pathType: Prefix
 

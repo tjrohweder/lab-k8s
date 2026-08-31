@@ -64,3 +64,9 @@ sns = {
   protocol = "email"
   endpoint = "tjrohweder@gmail.com"
 }
+
+cognito = {
+  user_pool_name   = "dagster-auth-pool"
+  user_pool_domain = "dagster-test"
+  user_pool_client = "dagster-alb-client"
+}

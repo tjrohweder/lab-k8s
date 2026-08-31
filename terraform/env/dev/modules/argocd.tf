@@ -25,6 +25,6 @@ resource "helm_release" "argocd_apps" {
   depends_on = [helm_release.argocd]
 
   values = [
-    file("${path.module}/argocd/argocd-apps-values.yaml")
+    local_file.argocd_app_values.content
   ]
 }
