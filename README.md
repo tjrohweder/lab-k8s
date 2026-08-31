@@ -17,7 +17,7 @@ This test was created keeping the following aspects in mind:
 - Docker
 
 ## Architecture Diagram
-![Architecture](images/image.png)   
+![Architecture](images/architecture.png)   
 
 ## Architecture Design & Decision Making
 
