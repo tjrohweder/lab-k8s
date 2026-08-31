@@ -1,6 +1,6 @@
 clusterName: "lab-cluster"
 region: "us-east-1"
-vpcId: "vpc-0c176da12697c3aca"
+vpcId: "vpc-01caa7193cf9fa7eb"
 serviceAccount:
   create: true
   name: aws-load-balancer-controller
